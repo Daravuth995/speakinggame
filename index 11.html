@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Emoji Match IPA Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4cc9f0;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4caf50;
+      --warning: #ff9800;
+      --danger: #f44336;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .game-container {
+      max-width: 900px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .upper-section, .lower-section {
+      padding: 15px;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .card, .small-card {
+      perspective: 1000px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .card {
+      width: 90px;
+      height: 120px;
+    }
+
+    .small-card {
+      width: 60px;
+      height: 85px;
+    }
+
+    .card:hover, .small-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-inner, .small-card-inner {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+      position: relative;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card.flipped .card-inner,
+    .small-card.flipped .small-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back,
+    .small-front, .small-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10px;
+      font-size: 2rem;
+      text-align: center;
+      padding: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .card-front { 
+      background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+      color: #fff;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    
+    .card-back  { 
+      background: linear-gradient(45deg, #a1c4fd 0%, #c2e9fb 100%);
+      transform: rotateY(180deg); 
+      font-weight: bold;
+      color: var(--dark);
+      font-size: 1.8rem;
+    }
+
+    .small-front { 
+      background: linear-gradient(45deg, #84fab0 0%, #8fd3f4 100%);
+      font-size: 1.2rem;
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    
+    .small-back {
+      background: linear-gradient(45deg, #a6c1ee 0%, #fbc2eb 100%);
+      transform: rotateY(180deg);
+      font-size: 0.8rem;
+      padding: 8px;
+      font-weight: 500;
+      line-height: 1.2;
+      color: var(--dark);
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+    }
+
+    .highlight {
+      animation: pulseGlow 1.5s ease-in-out 0s 2;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { 
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        transform: scale(1);
+      }
+      50% { 
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+        transform: scale(1.05);
+      }
+    }
+
+    .title-text {
+      text-align: center;
+      margin: 15px 0;
+      font-size: 1.2rem;
+      color: var(--dark);
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .title-text strong {
+      color: var(--primary);
+      font-size: 1.3rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .header h1 {
+      color: var(--primary);
+      margin: 0;
+      font-size: 2rem;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .header p {
+      color: var(--dark);
+      opacity: 0.8;
+      margin: 5px 0 0;
+    }
+
+    .score-display {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 10px 15px;
+      border-radius: 50px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      font-weight: bold;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .score-display::before {
+      content: "★";
+      color: gold;
+      font-size: 1.2rem;
+    }
+
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background-color: #f00;
+      border-radius: 50%;
+      animation: fall 5s linear forwards;
+      z-index: 1000;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .card { width: 70px; height: 95px; }
+      .small-card { width: 50px; height: 70px; }
+      .card-front, .card-back { font-size: 1.5rem; }
+      .small-front { font-size: 1rem; }
+      .small-back { font-size: 0.7rem; }
+      .title-text { font-size: 1rem; }
+      .header h1 { font-size: 1.5rem; }
+    }
+
+    /* Floating animation for unflipped cards */
+    .card:not(.flipped) .card-front,
+    .small-card:not(.flipped) .small-front {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* Shake animation for wrong answers */
+    .shake {
+      animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translateX(-1px); }
+      20%, 80% { transform: translateX(2px); }
+      30%, 50%, 70% { transform: translateX(-4px); }
+      40%, 60% { transform: translateX(4px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="score-display" id="scoreDisplay">Score: 0</div>
+
+  <div class="game-container">
+    <div class="header">
+      <h1>Emoji Match IPA</h1>
+      <p>Match the emoji prizes with their IPA cards!</p>
+    </div>
+
+    <div class="upper-section" id="cardContainer"></div>
+
+    <div class="title-text">
+      <strong>Match the Emoji Prize with IPA Cards!</strong><br>
+      Some IPA cards contain prizes — others test your English knowledge.
+    </div>
+
+    <div class="lower-section" id="ipaContainer"></div>
+  </div>
+
+  <script>
+    const emojis = ['🍕', '🎁', '🚗', '⚽', '🌈', '🎸', '✈️', '🍩', '📱', '💎'];
+    const ipaSymbols = [
+      '/iː/', '/ɪ/', '/e/', '/æ/', '/ɑː/',
+      '/ɒ/', '/ɔː/', '/ʊ/', '/uː/', '/ʌ/',
+      '/ɜː/', '/ə/', '/eɪ/', '/aɪ/', '/ɔɪ/',
+      '/əʊ/', '/aʊ/', '/ɪə/', '/eə/', '/ʊə/',
+      '/p/', '/b/', '/t/', '/d/', '/k/'
+    ];
+
+    const questions = [
+      "Past tense of 'go'?",
+      "Plural of 'baby'?",
+      "Opposite of 'big'?",
+      "Which is a verb: run or blue?",
+      "Translate: 'I have a pen.'",
+      "Superlative of 'happy'?",
+      "Who teaches?",
+      "Past tense of 'eat'?",
+      "Fill in: She ___ a book.",
+      "Which is a noun: apple or quickly?",
+      "Plural of 'mouse'?",
+      "Tense: 'She is eating'?",
+      "Synonym for 'fast'?",
+      "Tag for: 'You're happy'?",
+      "They ___ soccer every day."
+    ];
+
+    const cardContainer = document.getElementById('cardContainer');
+    const ipaContainer = document.getElementById('ipaContainer');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const cardMap = {}; // Map emoji to top card element
+    let score = 0;
+    let matchedPairs = 0;
+    let pendingScoreUpdates = 0;
+
+    // Generate random points (1-25) and "Thank You!" messages
+    const generateReward = () => {
+      if (Math.random() < 0.3) { // 30% chance for Thank You
+        return "Thank You!";
+      }
+      return `+${Math.floor(Math.random() * 25) + 1}`;
+    };
+
+    // Create upper emoji prize cards
+    emojis.forEach((emoji) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.setAttribute('data-emoji', emoji);
+      card.innerHTML = `
+        <div class="card-inner">
+          <div class="card-front">${emoji}</div>
+          <div class="card-back">${generateReward()}</div>
+        </div>`;
+      cardContainer.appendChild(card);
+      cardMap[emoji] = card;
+      
+      card.addEventListener('click', () => {
+        if (!card.classList.contains('flipped')) {
+          card.classList.add('flipped');
+          // Only update score if there are pending updates and this is a point card
+          const pointsText = card.querySelector('.card-back').textContent;
+          if (pointsText !== "Thank You!" && pendingScoreUpdates > 0) {
+            const points = parseInt(pointsText.substring(1));
+            score += points;
+            pendingScoreUpdates--;
+            updateScore();
+          }
+        }
+      });
+      
+      // Add hover effect
+      card.addEventListener('mouseenter', () => {
+        if (!card.classList.contains('flipped')) {
+          card.style.transform = 'scale(1.05)';
+        }
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+
+    // Randomly choose 10 IPA cards to be matches
+    const matchIndexes = new Set();
+    while (matchIndexes.size < 10) {
+      matchIndexes.add(Math.floor(Math.random() * ipaSymbols.length));
+    }
+
+    // Shuffle questions array
+    const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+    let questionIndex = 0;
+
+    ipaSymbols.forEach((ipa, index) => {
+      const card = document.createElement('div');
+      card.className = 'small-card';
+      const inner = document.createElement('div');
+      inner.className = 'small-card-inner';
+
+      const front = document.createElement('div');
+      front.className = 'small-front';
+      front.textContent = ipa;
+
+      const back = document.createElement('div');
+      back.className = 'small-back';
+
+      if (matchIndexes.has(index)) {
+        const emojiIndex = Math.floor(Math.random() * emojis.length);
+        const emoji = emojis[emojiIndex];
+        back.innerHTML = `<span style="font-size: 1.5rem;">${emoji}</span>`;
+        back.setAttribute('data-emoji', emoji);
+
+        card.addEventListener('click', () => {
+          if (!card.classList.contains('flipped')) {
+            card.classList.add('flipped');
+            
+            // Highlight matching upper card
+            const topCard = cardMap[emoji];
+            topCard.classList.add('highlight');
+            
+            // Get points from the back of the card but don't update score yet
+            const pointsText = topCard.querySelector('.card-back').textContent;
+            if (pointsText !== "Thank You!") {
+              pendingScoreUpdates++;
+            }
+            
+            matchedPairs++;
+            
+            // Create confetti effect
+            createConfetti(card);
+            
+            setTimeout(() => {
+              topCard.classList.remove('highlight');
+            }, 3000);
+            
+            // Check if all matches found
+            if (matchedPairs === 10) {
+              setTimeout(() => {
+                alert(`Congratulations! You found all matches with a total score of ${score} points!`);
+              }, 500);
+            }
+          }
+        });
+
+      } else {
+        const question = shuffledQuestions[questionIndex % shuffledQuestions.length];
+        questionIndex++;
+        back.innerHTML = `<span>${question}</span>`;
+
+        card.addEventListener('click', () => {
+          if (!card.classList.contains('flipped')) {
+            card.classList.add('flipped');
+            card.classList.add('shake');
+            
+            setTimeout(() => {
+              card.classList.remove('shake');
+            }, 500);
+          }
+        });
+      }
+
+      inner.appendChild(front);
+      inner.appendChild(back);
+      card.appendChild(inner);
+      ipaContainer.appendChild(card);
+      
+      // Add hover effect
+      card.addEventListener('mouseenter', () => {
+        if (!card.classList.contains('flipped')) {
+          card.style.transform = 'scale(1.1)';
+        }
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+
+    function updateScore() {
+      scoreDisplay.textContent = `Score: ${score}`;
+      scoreDisplay.style.animation = 'none';
+      void scoreDisplay.offsetWidth; // Trigger reflow
+      scoreDisplay.style.animation = 'pulseGlow 0.5s ease';
+    }
+
+    function createConfetti(element) {
+      const rect = element.getBoundingClientRect();
+      const colors = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#577590'];
+      
+      for (let i = 0; i < 30; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = `${rect.left + rect.width/2}px`;
+        confetti.style.top = `${rect.top}px`;
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = `${Math.random() * 8 + 4}px`;
+        confetti.style.height = `${Math.random() * 8 + 4}px`;
+        confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+        document.body.appendChild(confetti);
+        
+        setTimeout(() => {
+          confetti.remove();
+        }, 5000);
+      }
+    }
+  </script>
+</body>
+</html>
